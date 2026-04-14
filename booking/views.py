@@ -231,22 +231,7 @@ Thank you.
     })
 
 
-@login_required
-def download_ticket(request, booking_id):
-    booking = get_object_or_404(Booking, id=booking_id)
 
-    template = get_template("booking/ticket_pdf.html")
-    html = template.render({
-        "booking": booking,
-        "qr_path": booking.qr_code.path if booking.qr_code else None
-    })
-
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="ticket_{booking.id}.pdf"'
-
-    pisa.CreatePDF(html, dest=response)
-
-    return response
 
 
 @login_required
