@@ -231,7 +231,7 @@ Thank you.
         'booking': booking
     })
     
-    def download_ticket(request, booking_id):
+def download_ticket(request, booking_id):
       return HttpResponse(f"Download ticket for booking {booking_id}")
 
 
