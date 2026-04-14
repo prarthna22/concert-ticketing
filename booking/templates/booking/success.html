@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Booking Success</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+
+        .ticket {
+            background: #1e1e1e;
+            padding: 30px;
+            border-radius: 15px;
+            display: inline-block;
+            width: 350px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+
+        .ticket h1 {
+            margin-bottom: 10px;
+        }
+
+        .divider {
+            border-top: 1px dashed #555;
+            margin: 15px 0;
+        }
+
+        .details p {
+            margin: 5px 0;
+        }
+
+        .qr {
+            margin-top: 15px;
+        }
+
+        .qr img {
+            width: 180px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .btn {
+            margin-top: 15px;
+            display: inline-block;
+            background: orange;
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        .btn:hover {
+            background: darkorange;
+        }
+
+        .small {
+            font-size: 12px;
+            color: #aaa;
+        }
+        .qr-section {
+    text-align: center;
+    margin-top: 25px;
+    padding: 20px;
+    border-top: 1px solid #555;
+         }
+  
+    .qr-image {
+    width: 180px;
+    height: 180px;
+    margin: 15px 0;
+    padding: 10px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+         }
+
+    .qr-note {
+    font-size: 14px;
+    color: #bbb;
+       }
+
+    .qr-error {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+    </style>
+</head>
+
+<body>
+
+<div class="ticket">
+
+    <h1>🎉 Booking Confirmed!</h1>
+    <p class="small">Your concert ticket is ready</p>
+
+    <div class="divider"></div>
+
+    <div class="details">
+        <p><b>🎤 Event:</b> {{ booking.event.name }}</p>
+        <p><b>👤 User:</b> {{ booking.user.username }}</p>
+        <p><b>🎟️ Seats:</b> {{ booking.selected_seats }}</p>
+
+        <p>
+            <b>💳 Payment:</b>
+            {% if booking.payment_method == "qr" %}
+                QR Code
+            {% else %}
+                Card
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="divider"></div>
+
+    <h3>📱 Scan QR at Entry</h3>
+
+    <div class="qr-section">
+    <h3>📱 Scan QR at Entry</h3>
+
+    {% if booking.qr_code %}
+        <img src="{{ booking.qr_code.url }}" alt="QR Code" class="qr-image">
+        <p class="qr-note">Present this QR code at the venue entrance</p>
+    {% else %}
+        <p class="qr-error">QR code not generated.</p>
+    {% endif %}
+</div>
+
+    <p class="small">Show this ticket at the venue</p>
+
+    <div class="divider"></div>
+
+    <!-- Buttons -->
+    <a class="btn" href="{% url 'event_list' %}">🏠 Back to Home</a>
+    <br>
+    <a class="btn" href="{% url 'download_ticket' booking.id %}">⬇️ Download Ticket</a>
+
+</div>
+
+</body>
+</html>

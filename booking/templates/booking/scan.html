@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scan Ticket</title>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        #reader {
+            width: 400px;
+            margin: auto;
+            margin-top: 30px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+
+<h1>🎫 Scan Ticket</h1>
+
+<div id="reader"></div>
+
+<script>
+function onScanSuccess(decodedText) {
+    console.log("QR Code:", decodedText);
+
+    // ✅ FIXED LOGIC
+    if (decodedText.startsWith("http")) {
+        // QR already has full URL
+       window.location.assign(decodedText);
+    } else {
+        // QR has only booking ID
+        window.location.href = "/use-ticket/" + decodedText + "/";
+    }
+}
+
+// Prevent multiple scans firing
+let scanner = new Html5QrcodeScanner(
+    "reader",
+    { fps: 10, qrbox: 250 }
+);
+
+scanner.render((decodedText) => {
+    scanner.clear(); // stop scanning after success
+    onScanSuccess(decodedText);
+});
+</script>
+
+</body>
+</html>

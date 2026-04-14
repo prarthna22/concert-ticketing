@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ artist.name }}</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: black;
+            color: white;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            position: relative;
+            height: 60vh;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .overlay {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to right, rgba(0,0,0,0.9), transparent);
+            top: 0;
+            left: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+        }
+
+        /* EVENTS */
+        .events {
+            padding: 40px;
+        }
+
+        .event-card {
+            background: #111;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+        }
+
+        .btn {
+            background: red;
+            padding: 10px 20px;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- HERO -->
+<div class="hero" style="
+    {% if 'Maroon 5' in artist.name %}
+        background-image: url('https://upload.wikimedia.org/wikipedia/commons/0/0f/Maroon_5_2019.jpg');
+    {% elif 'Doja' in artist.name %}
+        background-image: url('https://upload.wikimedia.org/wikipedia/commons/7/7f/Doja_Cat_2020.png');
+    {% else %}
+        background-color: black;
+    {% endif %}
+">
+    <div class="overlay"></div>
+
+    <div class="hero-content">
+        <h1>{{ artist.name }}</h1>
+        <p>🔥 Live Concert Experience</p>
+    </div>
+</div>
+
+<!-- EVENTS LIST -->
+<div class="events">
+    <h2>🎟 Available Concerts</h2>
+
+    {% for event in events %}
+    <div class="event-card">
+        <h3>{{ event.name }}</h3>
+        <p>Date: {{ event.date }}</p>
+        <p>Seats Left: {{ event.available_seats }}</p>
+        <p>Price: €{{ event.price }}</p>
+
+        <a class="btn" href="{% url 'book_ticket' event.id %}">
+            Book Ticket
+        </a>
+    </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>

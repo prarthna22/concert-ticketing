@@ -1,0 +1,185 @@
+{% extends 'booking/base.html' %}
+
+{% block content %}
+
+<style>
+.search-bar {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}
+
+.search-box {
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(10px);
+    padding: 10px;
+    border-radius: 12px;
+    width: 70%;
+    display: flex;
+    box-shadow: 0 0 15px rgba(0,255,170,0.2);
+}
+
+.search-box input {
+    flex: 1;
+    border: none;
+    padding: 12px;
+    font-size: 15px;
+    outline: none;
+    background: transparent;
+    color: white;
+}
+
+.search-box button {
+    background: linear-gradient(135deg, #00ffcc, #00c896);
+    border: none;
+    padding: 12px 22px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    color: black;
+}
+
+/* 🔥 FIXED HERO FULL WIDTH */
+.hero {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    background:
+        linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
+        url("https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2")
+        no-repeat center center/cover;
+    height: 60vh;
+    display: flex;
+    align-items: center;
+    padding: 60px;
+}
+
+.hero-text h1 {
+    font-size: 46px;
+    color: #00ffcc;
+}
+
+.btn {
+    background: linear-gradient(135deg, #00ffcc, #00c896);
+    padding: 10px 18px;
+    color: black;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    transition: 0.3s;
+    display: inline-block;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 12px #00ffcc;
+}
+
+.edit-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: black;
+}
+
+.delete-btn {
+    background: linear-gradient(135deg, #ef4444, #b91c1c);
+    color: white;
+}
+
+.events {
+    padding: 60px 80px;
+}
+
+.event-card {
+    display: flex;
+    gap: 25px;
+    background: rgba(20, 30, 30, 0.85);
+    padding: 25px;
+    margin: 20px 0;
+    border-radius: 18px;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 0 20px rgba(0,255,170,0.15);
+}
+
+.event-image img {
+    width: 260px;
+    height: 170px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.artist-link {
+    color: #00ffcc;
+    text-decoration: none;
+    font-size: 26px;
+}
+
+.price {
+    color: #00ffcc;
+    font-size: 22px;
+}
+
+.action-buttons {
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+</style>
+
+<div class="search-bar">
+    <form method="GET" action="{% url 'event_list' %}" class="search-box">
+        <input type="text" name="q" placeholder="Search..." value="{{ query }}">
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+<!-- 🔥 FULL WIDTH HERO -->
+<div class="hero">
+    <div class="hero-text">
+        <h1>🎤 Live Concert Experience</h1>
+        <a class="btn" href="#events">Find Tickets</a>
+    </div>
+</div>
+
+<div id="events" class="events">
+    <h2>Available Events</h2>
+
+    {% for event in events %}
+    <div class="event-card">
+
+        <div class="event-image">
+            {% if event.image %}
+                <img src="{{ event.image.url }}">
+            {% endif %}
+        </div>
+
+        <div>
+            <h3>
+                <a href="{% url 'artist_detail' event.id %}" class="artist-link">
+                    {{ event.name }}
+                </a>
+            </h3>
+
+            <p>{{ event.description }}</p>
+
+            <p>Date: {{ event.date }}</p>
+            <p>Seats Left: {{ event.available_seats }}</p>
+
+            <p class="price">€{{ event.price }}</p>
+
+            <div class="action-buttons">
+
+                <a class="btn" href="{% url 'book_ticket' event.id %}">Book</a>
+
+                {% if user.is_staff %}
+                    <a class="btn edit-btn" href="{% url 'edit_event' event.id %}">Edit</a>
+                    <a class="btn delete-btn" href="{% url 'delete_event' event.id %}">Delete</a>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

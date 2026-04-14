@@ -1,0 +1,216 @@
+{% extends 'booking/base.html' %}
+
+{% block content %}
+
+<div class="card">
+    <h2>🎟️ Book Ticket for {{ event.name }}</h2>
+    <p><strong>Available Seats:</strong> {{ event.available_seats }}</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="seats" id="selectedSeats">
+        <button class="btn" type="submit">Confirm Booking</button>
+    </form>
+</div>
+
+<!-- 🎤 STAGE -->
+<div class="stage">
+    🎤 STAGE
+</div>
+
+<h3 style="text-align:center;">Select Your Seats</h3>
+
+<!-- 🎯 SEATS -->
+<div class="seats-container">
+    {% for seat in seats_list %}
+
+        {% if forloop.counter0|divisibleby:10 %}
+            <div class="row">
+        {% endif %}
+
+        {% if seat in booked_seats %}
+            <!-- 🔴 BOOKED -->
+            <button type="button" class="seat booked" disabled>
+                {{ seat }}
+            </button>
+        {% else %}
+            <!-- ⚫ AVAILABLE -->
+            <button type="button" class="seat" onclick="selectSeat(this)">
+                {{ seat }}
+            </button>
+        {% endif %}
+
+        {% if forloop.counter|divisibleby:10 %}
+            </div>
+        {% endif %}
+
+    {% endfor %}
+</div>
+<div class="legend">
+    <span class="dot available"></span> Available
+    <span class="dot selected"></span> Selected
+    <span class="dot booked"></span> Booked
+</div>
+
+<!-- 🎨 LEGEND -->
+<div class="legend">
+    ⚫ Available &nbsp;&nbsp;
+    🟢 Selected &nbsp;&nbsp;
+    🔴 Booked
+</div>
+
+<style>
+    body {
+    background: radial-gradient(circle at top, #0f2027, #203a43, #0a1f1c);
+    color: white;
+}
+
+/* Card */
+.card {
+    background: rgba(20, 30, 30, 0.85);
+    color: white;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 20px rgba(0,255,170,0.2);
+}
+.stage {
+    background: linear-gradient(45deg, #111, #444);
+    box-shadow: 0 0 20px rgba(0,255,170,0.3);
+}
+.seat {
+    background: #2e2e2e;
+}
+
+/* 🎤 Stage */
+.stage {
+    width: 60%;
+    margin: 30px auto;
+    padding: 15px;
+    background: linear-gradient(45deg, #222, #555);
+    color: white;
+    text-align: center;
+    font-weight: bold;
+    border-radius: 10px;
+    letter-spacing: 2px;
+}
+
+/* Seats container */
+.seats-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Each row */
+.row {
+    margin-bottom: 8px;
+}
+
+/* Seat base */
+.seat {
+    margin: 4px;
+    padding: 10px 12px;
+    background: #444;   /* ⚫ Available */
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* Hover */
+.seat:hover {
+    background: #00ffcc;
+    color: black;
+}
+
+/* 🟢 Selected */
+.seat.selected {
+    background: #00ffcc;
+    color: black;
+    box-shadow: 0 0 10px #00ffcc;
+}
+
+/* 🔴 Booked */
+.seat.booked {
+    background: #ff4d4d;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+.seat.selected {
+    background: #00ffcc;
+    color: black;
+    box-shadow: 0 0 12px #00ffcc, 0 0 20px #00ffcc;
+    transform: scale(1.05);
+}
+
+/* Button */
+.btn {
+    background: #ff4d4d;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Legend */
+.legend {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+}
+.legend {
+    text-align: center;
+    margin-top: 20px;
+    color: white;
+}
+
+.dot {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    margin: 0 6px;
+}
+
+.available { background: #444; }
+.selected { background: #00ffcc; }
+.booked { background: #ff2e2e; }
+
+</style>
+
+<script>
+let selected = [];
+
+function selectSeat(btn) {
+    let seat = btn.innerText;
+
+    if (selected.includes(seat)) {
+        selected = selected.filter(s => s !== seat);
+        btn.classList.remove("selected");
+    } else {
+        selected.push(seat);
+        btn.classList.add("selected");
+    }
+
+    document.getElementById("selectedSeats").value = selected.join(",");
+}
+function selectSeat(btn) {
+
+    if (btn.classList.contains("booked")) return;  // 🔴 block click
+
+    let seat = btn.innerText;
+
+    if (selected.includes(seat)) {
+        selected = selected.filter(s => s !== seat);
+        btn.classList.remove("selected");
+    } else {
+        selected.push(seat);
+        btn.classList.add("selected");
+    }
+
+    document.getElementById("selectedSeats").value = selected.join(",");
+}
+</script>
+
+{% endblock %}

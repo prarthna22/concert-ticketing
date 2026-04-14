@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Bookings</title>
+
+    <style>
+        body {
+            background: #0f172a;
+            color: white;
+            font-family: Arial;
+            margin: 0;
+            padding: 30px;
+        }
+
+        h2 {
+            color: #ffd700;
+            margin-bottom: 30px;
+        }
+
+        .booking-card {
+            display: flex;
+            gap: 20px;
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: space-between;
+            transition: 0.3s ease;
+        }
+
+        .booking-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.8);
+        }
+
+        /* 🎤 EVENT IMAGE */
+        .event-img img {
+            width: 200px;
+            height: 130px;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        /* 📄 DETAILS */
+        .details {
+            flex: 1;
+        }
+
+        .details h3 {
+            margin: 0 0 10px;
+        }
+
+        .details p {
+            margin: 5px 0;
+        }
+
+        /* 📱 QR */
+        .qr img {
+            width: 100px;
+        }
+
+        /* 🔴 DOWNLOAD BUTTON */
+        .btn {
+            display: inline-block;
+            background: linear-gradient(45deg, #ff4d4d, #ff1a1a);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            background: #ff1a1a;
+        }
+
+        /* ❌ CANCEL BUTTON */
+        .cancel-btn {
+            background: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 8px;
+            margin-top: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .cancel-btn:hover {
+            background: #cc0000;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<h2>🎫 My Bookings</h2>
+
+{% for booking in bookings %}
+<div class="booking-card">
+
+    <!-- 🎤 EVENT IMAGE -->
+    <div class="event-img">
+        {% if booking.event.image %}
+            <img src="{{ booking.event.image.url }}">
+        {% else %}
+            <img src="https://via.placeholder.com/200x130">
+        {% endif %}
+    </div>
+
+    <!-- 📄 DETAILS -->
+    <div class="details">
+        <h3>{{ booking.event.name }}</h3>
+       {% if booking.is_used %}
+    <span style="color:red;">❌ Used</span>
+{% else %}
+    <span style="color:#4ade80;">✔ Active</span>
+{% endif %}
+
+        <p><strong>Seats:</strong> {{ booking.seats_booked }}</p>
+        <p><strong>Total:</strong> €{{ booking.seats_booked }} x {{ booking.event.price }}</p>
+        <p><strong>Date:</strong> {{ booking.event.date }}</p>
+        <p><strong>Booked on:</strong> {{ booking.booking_time }}</p>
+        <p><strong>Payment:</strong> {{ booking.payment_method }}</p>
+
+        <form method="POST" action="{% url 'use_ticket' booking.id %}">
+    {% csrf_token %}
+    <button type="submit" style="background:#f59e0b; color:white; padding:8px 12px; border:none; border-radius:6px;">
+        Mark as Used
+    </button>
+</form>
+
+        <!-- 🔽 BUTTONS FIXED -->
+        <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
+
+            <a class="btn" href="{% url 'download_ticket' booking.id %}">
+                Download Ticket
+            </a>
+
+            <form method="POST" action="{% url 'cancel_booking' booking.id %}">
+                {% csrf_token %}
+                <button type="submit" class="cancel-btn">Cancel</button>
+            </form>
+
+        </div>
+    </div>
+
+    <!-- 📱 QR CODE -->
+    <div class="qr">
+        {% if booking.qr_code %}
+            <img src="{{ booking.qr_code.url }}">
+        {% endif %}
+    </div>
+
+</div>
+{% empty %}
+    <p>No bookings yet.</p>
+{% endfor %}
+
+</body>
+</html>

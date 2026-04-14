@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket Verification</title>
+
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: #fff;
+            padding: 40px;
+            border-radius: 18px;
+            text-align: center;
+            width: 380px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+            animation: pop 0.4s ease;
+        }
+
+        @keyframes pop {
+            from { transform: scale(0.7); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .icon {
+            font-size: 70px;
+            margin-bottom: 10px;
+        }
+
+        .success { color: #22c55e; }
+        .error { color: #ef4444; }
+        .warning { color: #f59e0b; }
+
+        h2 { margin: 10px 0; }
+
+        p { color: #555; }
+
+        .info {
+            background: #f1f5f9;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 15px;
+            text-align: left;
+        }
+
+        .info p {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 25px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: #1d4ed8;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+
+    {% if status == "success" %}
+        <div class="icon success">✅</div>
+        <h2>Ticket Verified</h2>
+        <p>Welcome! Enjoy the event 🎉</p>
+
+        <div class="info">
+            <p><strong>User:</strong> {{ booking.user }}</p>
+            <p><strong>Event:</strong> {{ booking.event }}</p>
+            <p><strong>Seats:</strong> {{ booking.seats }}</p>
+        </div>
+
+        <script>
+            new Audio("{% static 'sounds/success.mp3' %}").play();
+        </script>
+
+    {% elif status == "used" %}
+        <div class="icon error">❌</div>
+        <h2>Already Used</h2>
+        <p>This ticket has already been scanned.</p>
+
+        <div class="info">
+            <p><strong>User:</strong> {{ booking.user }}</p>
+            <p><strong>Event:</strong> {{ booking.event }}</p>
+        </div>
+
+        <script>
+            new Audio("{% static 'sounds/error.mp3' %}").play();
+        </script>
+
+    {% elif status == "invalid" %}
+        <div class="icon warning">⚠️</div>
+        <h2>Invalid Ticket</h2>
+        <p>This QR code is not valid.</p>
+
+        <script>
+            new Audio("{% static 'sounds/error.mp3' %}").play();
+        </script>
+
+    {% else %}
+        <div class="icon warning">⚠️</div>
+        <h2>Error</h2>
+        <p>Something went wrong.</p>
+    {% endif %}
+
+    <a href="/" class="btn">🏠 Go Home</a>
+
+</div>
+
+</body>
+</html>

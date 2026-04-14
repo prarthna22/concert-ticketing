@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+    body {
+        font-family: Arial;
+    }
+
+    .ticket {
+        width: 700px;
+        border: 2px solid #333;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .header {
+        background: #ff4d4d;
+        color: white;
+        padding: 15px;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+    .container {
+        display: flex;
+    }
+
+    .left {
+        width: 70%;
+        padding: 20px;
+    }
+
+    .left p {
+        margin: 8px 0;
+    }
+
+    .right {
+        width: 30%;
+        border-left: 2px dashed #999;
+        text-align: center;
+        padding: 20px;
+    }
+
+    .footer {
+        border-top: 1px solid #ccc;
+        padding: 10px;
+        text-align: center;
+        font-size: 12px;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="ticket">
+
+    <div class="header">
+        🎵 LIVE CONCERT PASS
+    </div>
+
+    <div class="container">
+
+        <div class="left">
+            <p><strong>Event:</strong> {{ booking.event.name }}</p>
+            <p><strong>User:</strong> {{ booking.user.username }}</p>
+            <p><strong>Seats:</strong> {{ booking.seats_booked }}</p>
+            <p><strong>Payment:</strong> {{ booking.payment_method }}</p>
+
+            <hr>
+            <p>Show this ticket at entry</p>
+        </div>
+
+        <div class="right">
+            <img src="{{ qr_path }}" width="120">
+            <p><strong>Ticket #{{ booking.id }}</strong></p>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Enjoy the concert 🎶 | TicketHub
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,81 @@
+{% if messages %}
+    {% for message in messages %}
+        <p style="color: orange; text-align:center;">{{ message }}</p>
+    {% endfor %}
+{% endif %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: url("https://images.unsplash.com/photo-1507874457470-272b3c8d8ee2") no-repeat center center/cover;
+            height: 100vh;
+        }
+
+        .overlay {
+            background: rgba(0,0,0,0.6);
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .login-box {
+            background: white;
+            padding: 40px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .login-box h2 {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+        }
+
+        .btn {
+            background: orange;
+            color: white;
+            padding: 10px;
+            border: none;
+            width: 100%;
+            cursor: pointer;
+        }
+
+        .btn:hover {
+            background: darkorange;
+        }
+
+        a {
+            display: block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="overlay">
+    <div class="login-box">
+        <h2>🎵 Login</h2>
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn" type="submit">Login</button>
+        </form>
+
+        <a href="/signup/">Don't have an account? Sign up</a>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Payment</title>
+
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .box {
+            background: rgba(30, 41, 59, 0.85);
+            backdrop-filter: blur(10px);
+            padding: 35px;
+            border-radius: 15px;
+            width: 380px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        h2 {
+            margin-bottom: 20px;
+            font-size: 30px;
+        }
+
+        p {
+            font-size: 18px;
+            margin: 12px 0;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, #f59e0b, #f97316);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 17px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.4);
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="box">
+    <h2>💳 Payment</h2>
+
+    <p><strong>Event:</strong> {{ event.name }}</p>
+    <p><strong>Seats:</strong> {{ seats }}</p>
+    <p><strong>Total:</strong> €{{ total }}</p>
+
+    <form method="POST" action="{% url 'pay' event.id %}">
+        {% csrf_token %}
+
+        <input type="hidden" name="seats" value="{{ seats }}">
+
+        <button type="submit">
+            Pay Now
+        </button>
+    </form>
+</div>
+
+</body>
+</html>
