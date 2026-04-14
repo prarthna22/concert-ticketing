@@ -9,6 +9,7 @@ from django.template.loader import get_template
 from django.conf import settings
 from django.core.mail import send_mail
 
+
 # from xhtml2pdf import pisa
 import stripe
 
@@ -229,8 +230,9 @@ Thank you.
     return render(request, 'booking/success.html', {
         'booking': booking
     })
-
-
+    
+    def download_ticket(request, booking_id):
+      return HttpResponse(f"Download ticket for booking {booking_id}")
 
 
 
