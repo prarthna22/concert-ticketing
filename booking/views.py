@@ -9,7 +9,7 @@ from django.template.loader import get_template
 from django.conf import settings
 from django.core.mail import send_mail
 
-from xhtml2pdf import pisa
+# from xhtml2pdf import pisa
 import stripe
 
 from .models import Event, Booking
