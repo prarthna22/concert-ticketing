@@ -231,7 +231,21 @@ def success(request):
         event.available_seats -= seat_count
         event.save()
 
-        print("Email skipped (Render SMTP issue)")
+        from django.conf import settings
+        send_mail(
+            subject='Concert Ticket Booking Confirmation',
+            message=f'''
+            Hi {request.user.username},
+            Your booking is confirmed!
+            Event: {event.name}
+            Seats: {seats}
+            Booking ID: {booking.id}
+            Thank you.
+            ''',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[request.user.email],
+            fail_silently=False,
+            )
 
         return render(request, 'booking/success.html', {
             'booking': booking
