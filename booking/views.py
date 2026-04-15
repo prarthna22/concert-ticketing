@@ -183,37 +183,59 @@ def process_payment(request, event_id):
 
 @login_required
 def success(request):
-    event_id = request.GET.get("event_id")
-    seats = request.GET.get("seats", "")
+    try:
+        event_id = request.GET.get("event_id")
+        seats = request.GET.get("seats", "")
 
-    event = get_object_or_404(Event, id=event_id)
+        if not event_id:
+            return HttpResponse("Missing event ID")
 
-    seat_list = seats.split(",") if seats else []
-    seat_count = len(seat_list)
+        event = get_object_or_404(Event, id=event_id)
 
-    booking = Booking.objects.create(
-        user=request.user,
-        event=event,
-        seats_booked=seat_count,
-        selected_seats=seats,
-        payment_method="card"
-    )
+        seat_list = seats.split(",") if seats else []
+        seat_count = len(seat_list)
 
-    # ✅ FIX QR URL ALSO
-    qr_data = f"{DOMAIN}/use-ticket/{booking.id}/"
-    filename = f"booking_{booking.id}.png"
+        # جلوگیری از duplicate booking (important!)
+        existing_booking = Booking.objects.filter(
+            user=request.user,
+            event=event,
+            selected_seats=seats
+        ).first()
 
-    qr_path = generate_qr(qr_data, filename)
+        if existing_booking:
+            return render(request, 'booking/success.html', {
+                'booking': existing_booking
+            })
 
-    booking.qr_code = qr_path
-    booking.save()
+        booking = Booking.objects.create(
+            user=request.user,
+            event=event,
+            seats_booked=seat_count,
+            selected_seats=seats,
+            payment_method="card"
+        )
 
-    event.available_seats -= seat_count
-    event.save()
+        # ✅ QR generation (safe)
+        try:
+            qr_data = f"{DOMAIN}/use-ticket/{booking.id}/"
+            filename = f"booking_{booking.id}.png"
 
-    send_mail(
-        subject='Concert Ticket Booking Confirmation',
-        message=f'''
+            qr_path = generate_qr(qr_data, filename)
+
+            booking.qr_code = qr_path
+            booking.save()
+        except Exception as e:
+            print("QR ERROR:", e)
+
+        # ✅ Update seats safely
+        event.available_seats -= seat_count
+        event.save()
+
+        # ✅ Email (SAFE — won't crash)
+        try:
+            send_mail(
+                subject='Concert Ticket Booking Confirmation',
+                message=f'''
 Hi {request.user.username},
 
 Your booking is confirmed!
@@ -224,14 +246,20 @@ Booking ID: {booking.id}
 
 Thank you.
 ''',
-        from_email=settings.EMAIL_HOST_USER,
-        recipient_list=[request.user.email],
-        fail_silently=False,
-    )
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[request.user.email],
+                fail_silently=True,  # 🔥 KEY FIX
+            )
+        except Exception as e:
+            print("EMAIL ERROR:", e)
 
-    return render(request, 'booking/success.html', {
-        'booking': booking
-    })
+        return render(request, 'booking/success.html', {
+            'booking': booking
+        })
+
+    except Exception as e:
+        print("SUCCESS VIEW ERROR:", e)
+        return HttpResponse("Something went wrong. Check logs.")
 
 
 def download_ticket(request, booking_id):
