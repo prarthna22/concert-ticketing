@@ -39,7 +39,6 @@
     color: black;
 }
 
-/* 🔥 FIXED HERO FULL WIDTH */
 .hero {
     width: 100vw;
     margin-left: calc(-50vw + 50%);
@@ -132,7 +131,6 @@
     </form>
 </div>
 
-<!-- 🔥 FULL WIDTH HERO -->
 <div class="hero">
     <div class="hero-text">
         <h1>🎤 Live Concert Experience</h1>
@@ -148,7 +146,10 @@
 
         <div class="event-image">
             {% if event.image %}
-                <img src="{{ event.image.url }}">
+                <img src="{{ event.image.url }}"
+                     onerror="this.onerror=null;this.src='https://dummyimage.com/260x170/000/fff&text=No+Image';">
+            {% else %}
+                <img src="https://dummyimage.com/260x170/000/fff&text=No+Image">
             {% endif %}
         </div>
 

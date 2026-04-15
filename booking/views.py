@@ -10,14 +10,18 @@ from django.core.mail import send_mail
 import stripe
 
 from .models import Event, Booking
-from ticketing_utils.qr_generator import generate_qr
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum
-from django.core.files import File
 import json
+
+# 🔥 NEW IMPORTS FOR QR FIX
+import qrcode
+import base64
+from io import BytesIO
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
+# 🔥 DOMAIN
 DOMAIN = "https://concert-ticketing.onrender.com"
 
 
@@ -167,6 +171,7 @@ def process_payment(request, event_id):
                 'quantity': seat_count,
             }],
             mode='payment',
+
             success_url=f"{DOMAIN}/success/?event_id={event.id}&seats={seats}",
             cancel_url=f"{DOMAIN}/payment/{event.id}/",
         )
@@ -209,26 +214,21 @@ def success(request):
             payment_method="card"
         )
 
-        # 🔥 FIXED QR (proper file save)
-        try:
-            qr_data = f"{DOMAIN}/use-ticket/{booking.id}/"
-            filename = f"booking_{booking.id}.png"
+        # 🔥 FIXED QR (BASE64)
+        qr_data = f"{DOMAIN}/use-ticket/{booking.id}/"
+        qr = qrcode.make(qr_data)
 
-            qr_path = generate_qr(qr_data, filename)
+        buffer = BytesIO()
+        qr.save(buffer, format="PNG")
+        qr_base64 = base64.b64encode(buffer.getvalue()).decode()
 
-            with open(qr_path, 'rb') as f:
-                booking.qr_code.save(filename, File(f), save=True)
-
-        except Exception as e:
-            print("QR ERROR:", e)
-
+        # update seats
         event.available_seats -= seat_count
         event.save()
 
-        print("EMAIL DISABLED FOR DEPLOYMENT")
-
         return render(request, 'booking/success.html', {
-            'booking': booking
+            'booking': booking,
+            'qr_base64': qr_base64
         })
 
     except Exception as e:
