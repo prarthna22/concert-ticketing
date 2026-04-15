@@ -34,15 +34,31 @@
             margin: 5px 0;
         }
 
-        .qr {
-            margin-top: 15px;
+        .qr-section {
+            text-align: center;
+            margin-top: 25px;
+            padding: 20px;
+            border-top: 1px solid #555;
         }
 
-        .qr img {
+        .qr-image {
             width: 180px;
-            background: white;
+            height: 180px;
+            margin: 15px 0;
             padding: 10px;
-            border-radius: 10px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .qr-note {
+            font-size: 14px;
+            color: #bbb;
+        }
+
+        .qr-error {
+            color: #ff6b6b;
+            font-weight: bold;
         }
 
         .btn {
@@ -63,32 +79,6 @@
             font-size: 12px;
             color: #aaa;
         }
-        .qr-section {
-    text-align: center;
-    margin-top: 25px;
-    padding: 20px;
-    border-top: 1px solid #555;
-         }
-  
-    .qr-image {
-    width: 180px;
-    height: 180px;
-    margin: 15px 0;
-    padding: 10px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-         }
-
-    .qr-note {
-    font-size: 14px;
-    color: #bbb;
-       }
-
-    .qr-error {
-    color: #ff6b6b;
-    font-weight: bold;
-}
     </style>
 </head>
 
@@ -118,24 +108,21 @@
 
     <div class="divider"></div>
 
-    <h3>📱 Scan QR at Entry</h3>
-
     <div class="qr-section">
-    <h3>📱 Scan QR at Entry</h3>
+        <h3>📱 Scan QR at Entry</h3>
 
-    {% if booking.qr_code %}
-        <img src="{{ booking.qr_code.url }}" alt="QR Code" class="qr-image">
-        <p class="qr-note">Present this QR code at the venue entrance</p>
-    {% else %}
-        <p class="qr-error">QR code not generated.</p>
-    {% endif %}
-</div>
+        {% if booking.qr_code and booking.qr_code.url %}
+            <img src="{{ booking.qr_code.url }}" alt="QR Code" class="qr-image">
+            <p class="qr-note">Present this QR code at the venue entrance</p>
+        {% else %}
+            <p class="qr-error">QR code not generated yet.</p>
+        {% endif %}
+    </div>
 
     <p class="small">Show this ticket at the venue</p>
 
     <div class="divider"></div>
 
-    <!-- Buttons -->
     <a class="btn" href="{% url 'event_list' %}">🏠 Back to Home</a>
     <br>
     <a class="btn" href="{% url 'download_ticket' booking.id %}">⬇️ Download Ticket</a>

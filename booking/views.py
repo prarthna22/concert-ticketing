@@ -7,18 +7,17 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.mail import send_mail
-from django.conf import settings
 import stripe
 
 from .models import Event, Booking
 from ticketing_utils.qr_generator import generate_qr
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum
+from django.core.files import File
 import json
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
-# 🔥 ADD THIS DOMAIN
 DOMAIN = "https://concert-ticketing.onrender.com"
 
 
@@ -168,11 +167,7 @@ def process_payment(request, event_id):
                 'quantity': seat_count,
             }],
             mode='payment',
-
-            # ✅ FIXED URLS
-            success_url=(
-                f"{DOMAIN}/success/?event_id={event.id}&seats={seats}"
-            ),
+            success_url=f"{DOMAIN}/success/?event_id={event.id}&seats={seats}",
             cancel_url=f"{DOMAIN}/payment/{event.id}/",
         )
 
@@ -195,7 +190,6 @@ def success(request):
         seat_list = seats.split(",") if seats else []
         seat_count = len(seat_list)
 
-        # جلوگیری از duplicate booking (important!)
         existing_booking = Booking.objects.filter(
             user=request.user,
             event=event,
@@ -215,19 +209,19 @@ def success(request):
             payment_method="card"
         )
 
-        # ✅ QR generation (safe)
+        # 🔥 FIXED QR (proper file save)
         try:
             qr_data = f"{DOMAIN}/use-ticket/{booking.id}/"
             filename = f"booking_{booking.id}.png"
 
             qr_path = generate_qr(qr_data, filename)
 
-            booking.qr_code = qr_path
-            booking.save()
+            with open(qr_path, 'rb') as f:
+                booking.qr_code.save(filename, File(f), save=True)
+
         except Exception as e:
             print("QR ERROR:", e)
 
-        # ✅ Update seats safely
         event.available_seats -= seat_count
         event.save()
 
@@ -239,7 +233,7 @@ def success(request):
 
     except Exception as e:
         print("SUCCESS VIEW ERROR:", e)
-        return HttpResponse("Something went wrong. Check logs.")
+        return HttpResponse("Something went wrong.")
 
 
 def download_ticket(request, booking_id):
