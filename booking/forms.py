@@ -24,7 +24,7 @@ class EventForm(forms.ModelForm):
             'name',
             'date',
             'venue',
-            'total_seats',        # ✅ ADDED
+            'total_seats',       
             'available_seats',
             'price',
             'image',

@@ -37,24 +37,24 @@
 function onScanSuccess(decodedText) {
     console.log("QR Code:", decodedText);
 
-    // ✅ FIXED LOGIC
+    
     if (decodedText.startsWith("http")) {
-        // QR already has full URL
+      
        window.location.assign(decodedText);
     } else {
-        // QR has only booking ID
+       
         window.location.href = "/use-ticket/" + decodedText + "/";
     }
 }
 
-// Prevent multiple scans firing
+
 let scanner = new Html5QrcodeScanner(
     "reader",
     { fps: 10, qrbox: 250 }
 );
 
 scanner.render((decodedText) => {
-    scanner.clear(); // stop scanning after success
+    scanner.clear(); 
     onScanSuccess(decodedText);
 });
 </script>

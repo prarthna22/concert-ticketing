@@ -14,14 +14,14 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum
 import json
 
-# 🔥 NEW IMPORTS FOR QR FIX
+
 import qrcode
 import base64
 from io import BytesIO
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
-# 🔥 DOMAIN
+
 DOMAIN = "https://concert-ticketing.onrender.com"
 
 
@@ -214,7 +214,7 @@ def success(request):
             payment_method="card"
         )
 
-        # 🔥 FIXED QR (BASE64)
+      
         qr_data = f"{DOMAIN}/use-ticket/{booking.id}/"
         qr = qrcode.make(qr_data)
 

@@ -2,9 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
-# ============================================
-# EVENT MODEL
-# ============================================
+
 class Event(models.Model):
     name = models.CharField(max_length=200)
     date = models.DateTimeField()
@@ -23,9 +21,7 @@ class Event(models.Model):
         return self.name
 
 
-# ============================================
-# BOOKING MODEL
-# ============================================
+
 class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
