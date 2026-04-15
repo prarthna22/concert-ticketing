@@ -5,12 +5,9 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.db.models import Q
 from django.http import HttpResponse
-from django.template.loader import get_template
 from django.conf import settings
 from django.core.mail import send_mail
 
-
-# from xhtml2pdf import pisa
 import stripe
 
 from .models import Event, Booking
@@ -20,6 +17,9 @@ from django.db.models import Sum
 import json
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
+
+# 🔥 ADD THIS DOMAIN
+DOMAIN = "https://concert-ticketing.onrender.com"
 
 
 @login_required
@@ -168,11 +168,12 @@ def process_payment(request, event_id):
                 'quantity': seat_count,
             }],
             mode='payment',
+
+            # ✅ FIXED URLS
             success_url=(
-                f"http://127.0.0.1:8000/success/"
-                f"?event_id={event.id}&seats={seats}"
+                f"{DOMAIN}/success/?event_id={event.id}&seats={seats}"
             ),
-            cancel_url=f"http://127.0.0.1:8000/payment/{event.id}/",
+            cancel_url=f"{DOMAIN}/payment/{event.id}/",
         )
 
         return redirect(checkout_session.url)
@@ -198,7 +199,8 @@ def success(request):
         payment_method="card"
     )
 
-    qr_data = f"http://127.0.0.1:8000/use-ticket/{booking.id}/"
+    # ✅ FIX QR URL ALSO
+    qr_data = f"{DOMAIN}/use-ticket/{booking.id}/"
     filename = f"booking_{booking.id}.png"
 
     qr_path = generate_qr(qr_data, filename)
@@ -230,10 +232,10 @@ Thank you.
     return render(request, 'booking/success.html', {
         'booking': booking
     })
-    
-def download_ticket(request, booking_id):
-      return HttpResponse(f"Download ticket for booking {booking_id}")
 
+
+def download_ticket(request, booking_id):
+    return HttpResponse(f"Download ticket for booking {booking_id}")
 
 
 @login_required
