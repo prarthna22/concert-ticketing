@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.conf import settings
 from django.core.mail import send_mail
-
+from django.conf import settings
 import stripe
 
 from .models import Event, Booking
@@ -231,7 +231,6 @@ def success(request):
         event.available_seats -= seat_count
         event.save()
 
-        from django.conf import settings
         send_mail(
             subject='Concert Ticket Booking Confirmation',
             message=f'''
@@ -244,7 +243,7 @@ def success(request):
             ''',
             from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=[request.user.email],
-            fail_silently=False,
+            fail_silently=True,
             )
 
         return render(request, 'booking/success.html', {
