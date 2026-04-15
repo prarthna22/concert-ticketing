@@ -231,27 +231,7 @@ def success(request):
         event.available_seats -= seat_count
         event.save()
 
-        # ✅ Email (SAFE — won't crash)
-        try:
-            send_mail(
-                subject='Concert Ticket Booking Confirmation',
-                message=f'''
-Hi {request.user.username},
-
-Your booking is confirmed!
-
-Event: {event.name}
-Seats: {seats}
-Booking ID: {booking.id}
-
-Thank you.
-''',
-                from_email=settings.EMAIL_HOST_USER,
-                recipient_list=[request.user.email],
-                fail_silently=True,  # 🔥 KEY FIX
-            )
-        except Exception as e:
-            print("EMAIL ERROR:", e)
+        print("Email skipped (Render SMTP issue)")
 
         return render(request, 'booking/success.html', {
             'booking': booking
