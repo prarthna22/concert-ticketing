@@ -10,17 +10,14 @@ from django.core.mail import send_mail
 import stripe
 
 from .models import Event, Booking
+from ticketing_utils.qr_generator import generate_qr
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum
 import json
-
-
-import qrcode
-import base64
-from io import BytesIO
+import os
+from django.core.files import File
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
-
 
 DOMAIN = "https://concert-ticketing.onrender.com"
 
@@ -123,7 +120,7 @@ def book_ticket(request, event_id):
 
         for seat in seat_list:
             if seat in booked_seats:
-                messages.error(request, f"❌ Seat {seat} is already booked!")
+                messages.error(request, f"Seat {seat} already booked!")
                 return redirect('book_ticket', event_id=event.id)
 
         if seat_count <= event.available_seats:
@@ -136,7 +133,7 @@ def book_ticket(request, event_id):
                 'total': total
             })
         else:
-            messages.error(request, "❌ Not enough seats available!")
+            messages.error(request, "Not enough seats available!")
 
     return render(request, 'booking/book_ticket.html', {
         'event': event,
@@ -154,10 +151,6 @@ def process_payment(request, event_id):
         seat_list = seats.split(",") if seats else []
         seat_count = len(seat_list)
 
-        if seat_count > event.available_seats:
-            messages.error(request, "❌ Not enough seats available!")
-            return redirect('event_list')
-
         checkout_session = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[{
@@ -171,9 +164,8 @@ def process_payment(request, event_id):
                 'quantity': seat_count,
             }],
             mode='payment',
-
             success_url=f"{DOMAIN}/success/?event_id={event.id}&seats={seats}",
-            cancel_url=f"{DOMAIN}/payment/{event.id}/",
+            cancel_url=f"{DOMAIN}/",
         )
 
         return redirect(checkout_session.url)
@@ -187,24 +179,10 @@ def success(request):
         event_id = request.GET.get("event_id")
         seats = request.GET.get("seats", "")
 
-        if not event_id:
-            return HttpResponse("Missing event ID")
-
         event = get_object_or_404(Event, id=event_id)
 
         seat_list = seats.split(",") if seats else []
         seat_count = len(seat_list)
-
-        existing_booking = Booking.objects.filter(
-            user=request.user,
-            event=event,
-            selected_seats=seats
-        ).first()
-
-        if existing_booking:
-            return render(request, 'booking/success.html', {
-                'booking': existing_booking
-            })
 
         booking = Booking.objects.create(
             user=request.user,
@@ -214,26 +192,26 @@ def success(request):
             payment_method="card"
         )
 
-      
+        # ✅ FIXED QR CODE SAVE
         qr_data = f"{DOMAIN}/use-ticket/{booking.id}/"
-        qr = qrcode.make(qr_data)
+        filename = f"booking_{booking.id}.png"
 
-        buffer = BytesIO()
-        qr.save(buffer, format="PNG")
-        qr_base64 = base64.b64encode(buffer.getvalue()).decode()
+        qr_path = generate_qr(qr_data, filename)
 
-        # update seats
+        if os.path.exists(qr_path):
+            with open(qr_path, 'rb') as f:
+                booking.qr_code.save(filename, File(f), save=True)
+
         event.available_seats -= seat_count
         event.save()
 
         return render(request, 'booking/success.html', {
-            'booking': booking,
-            'qr_base64': qr_base64
+            'booking': booking
         })
 
     except Exception as e:
-        print("SUCCESS VIEW ERROR:", e)
-        return HttpResponse("Something went wrong.")
+        print("ERROR:", e)
+        return HttpResponse("Something went wrong")
 
 
 def download_ticket(request, booking_id):
