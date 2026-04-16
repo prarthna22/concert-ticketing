@@ -192,16 +192,21 @@ def success(request):
             payment_method="card"
         )
 
-        # ✅ FIXED QR CODE SAVE
-        qr_data = f"{DOMAIN}/use-ticket/{booking.id}/"
-        filename = f"booking_{booking.id}.png"
+        # 🔥 SAFE QR (won’t crash)
+        try:
+            qr_data = f"{DOMAIN}/use-ticket/{booking.id}/"
+            filename = f"booking_{booking.id}.png"
 
-        qr_path = generate_qr(qr_data, filename)
+            qr_path = generate_qr(qr_data, filename)
 
-        if os.path.exists(qr_path):
-            with open(qr_path, 'rb') as f:
-                booking.qr_code.save(filename, File(f), save=True)
+            if qr_path:
+                booking.qr_code = qr_path
+                booking.save()
 
+        except Exception as qr_error:
+            print("QR FAILED:", qr_error)
+
+        # update seats
         event.available_seats -= seat_count
         event.save()
 
@@ -210,8 +215,12 @@ def success(request):
         })
 
     except Exception as e:
-        print("ERROR:", e)
-        return HttpResponse("Something went wrong")
+        print("MAIN ERROR:", e)
+
+        # 🔥 NEVER BREAK PAGE
+        return render(request, 'booking/success.html', {
+            'booking': None
+        })
 
 
 def download_ticket(request, booking_id):

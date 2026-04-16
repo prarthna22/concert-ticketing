@@ -111,12 +111,11 @@
     <div class="qr-section">
         <h3>📱 Scan QR at Entry</h3>
 
-        {% if booking.qr_code and booking.qr_code.url %}
-            <img src="{{ booking.qr_code.url }}" alt="QR Code" class="qr-image">
-            <p class="qr-note">Present this QR code at the venue entrance</p>
-        {% else %}
-            <p class="qr-error">QR code not generated yet.</p>
-        {% endif %}
+      {% if booking and booking.qr_code %}
+    <img src="{{ booking.qr_code.url }}" class="qr-image">
+{% else %}
+    <p>QR not available</p>
+{% endif %} 
     </div>
 
     <p class="small">Show this ticket at the venue</p>
